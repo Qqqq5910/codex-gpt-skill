@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex ChatGPT Web Review"
+  short_description: "Loop Codex work through ChatGPT Web review."
+  default_prompt: "Use $codex-chatgpt-web-review to review my latest Codex work through ChatGPT Web and iterate until it is ready to deliver."

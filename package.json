@@ -1,0 +1,21 @@
+{
+  "name": "codex-gpt-skill",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Codex skill for iterative ChatGPT Web review loops.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "codex",
+    "skill",
+    "chatgpt",
+    "review",
+    "automation"
+  ],
+  "license": "MIT"
+}
