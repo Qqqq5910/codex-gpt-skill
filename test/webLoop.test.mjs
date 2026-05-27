@@ -20,6 +20,11 @@ test("buildContinuationPromptInput carries previous GPT advice", () => {
     latest: {
       runDir: "/tmp/run",
       verdict: "ITERATE",
+      summary: ["The retry state exists."],
+      why: ["Persistence was missing."],
+      changeRequests: ["Persist retry metadata."],
+      improvementIdeas: ["Add clearer docs."],
+      risks: ["Browser UI may hang."],
       nextActions: ["Add a retry path."],
       acceptanceChecks: ["node --test"],
       deliveryNote: "- Keep iterating.",
@@ -36,5 +41,8 @@ test("buildContinuationPromptInput carries previous GPT advice", () => {
   assert.deepEqual(input.changedFiles, ["src/example.mjs"]);
   assert.deepEqual(input.verification, ["manual web round trip"]);
   assert.match(input.priorAdvice, /Add a retry path/);
+  assert.match(input.priorAdvice, /Persist retry metadata/);
+  assert.match(input.priorAdvice, /Add clearer docs/);
+  assert.match(input.priorAdvice, /Browser UI may hang/);
   assert.match(input.priorAdvice, /node --test/);
 });

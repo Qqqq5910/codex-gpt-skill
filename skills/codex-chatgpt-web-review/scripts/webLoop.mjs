@@ -31,8 +31,14 @@ export function buildContinuationPromptInput({
   changedFiles = [],
   verification = [],
   knownIssues = [],
+  reviewFocus = [],
 } = {}) {
   const verdict = latest?.verdict || "UNKNOWN";
+  const reviewSummary = normalizeList(latest?.summary);
+  const why = normalizeList(latest?.why);
+  const changeRequests = normalizeList(latest?.changeRequests);
+  const improvementIdeas = normalizeList(latest?.improvementIdeas);
+  const risks = normalizeList(latest?.risks);
   const nextActions = normalizeList(latest?.nextActions);
   const acceptanceChecks = normalizeList(latest?.acceptanceChecks);
   const deliveryNote = String(latest?.deliveryNote || "").trim();
@@ -47,6 +53,11 @@ export function buildContinuationPromptInput({
 
   const priorAdvice = [
     `Previous verdict: ${verdict}`,
+    formatSection("GPT summary", reviewSummary),
+    formatSection("GPT reasons", why),
+    formatSection("GPT required changes", changeRequests),
+    formatSection("GPT optional improvement ideas", improvementIdeas),
+    formatSection("GPT risks", risks),
     formatSection("GPT next actions", nextActions),
     formatSection("GPT acceptance checks", acceptanceChecks),
     deliveryNote ? `GPT delivery note: ${deliveryNote}` : "",
@@ -59,6 +70,7 @@ export function buildContinuationPromptInput({
     changedFiles,
     verification,
     knownIssues,
+    reviewFocus,
     priorAdvice,
   };
 }

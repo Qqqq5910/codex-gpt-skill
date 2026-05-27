@@ -26,9 +26,11 @@ async function main() {
     changedFiles: args.changed,
     verification: args.verification,
     knownIssues: args.issue,
+    reviewFocus: args.focus,
   });
   const prompt = buildReviewPrompt({
     ...promptInput,
+    reviewDepth: args.reviewDepth,
     compact: mode === "compact",
   });
 
@@ -43,6 +45,8 @@ async function main() {
         mode,
         iteration: Number(latest.iteration || 0) + 1,
         promptChars: prompt.length,
+        reviewFocus: args.focus,
+        reviewDepth: args.reviewDepth || "thorough",
         previousRunDir: reviewSource.runDir || latest.runDir || null,
         previousVerdict: reviewSource.verdict || latest.verdict || null,
         previousStatus: reviewSource.status || latest.status || null,
@@ -92,6 +96,7 @@ function parseArgs(argv) {
     changed: [],
     verification: [],
     issue: [],
+    focus: [],
     copy: false,
     force: false,
   };
@@ -108,6 +113,8 @@ function parseArgs(argv) {
     else if (arg === "--changed") args.changed.push(next());
     else if (arg === "--verification") args.verification.push(next());
     else if (arg === "--issue") args.issue.push(next());
+    else if (arg === "--focus") args.focus.push(next());
+    else if (arg === "--review-depth") args.reviewDepth = next();
     else if (arg === "--run-dir") args.runDir = next();
     else if (arg === "--help") {
       printHelp();
@@ -134,6 +141,8 @@ Options:
   --changed TEXT        Relevant file or behavior, repeatable
   --verification TEXT   Check already run, repeatable
   --issue TEXT          Known issue or constraint, repeatable
+  --focus TEXT          Review focus such as tests, UX, security, docs, repeatable
+  --review-depth TEXT   Review depth: fast, normal, thorough, or custom
   --run-dir PATH        Output directory
   --copy                Copy prompt to macOS clipboard
   --compact             Force compact mode

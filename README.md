@@ -23,7 +23,10 @@ From the project you want reviewed:
 node "${CODEX_HOME:-$HOME/.codex}/skills/codex-chatgpt-web-review/scripts/prepareWebReview.mjs" --compact --copy \
   --summary "what Codex changed" \
   --changed "src/example.ts: changed behavior" \
-  --verification "node --test passed"
+  --verification "node --test passed" \
+  --focus "implementation quality" \
+  --focus "missing edge cases" \
+  --review-depth thorough
 ```
 
 Paste the prompt into ChatGPT Web. After ChatGPT replies, copy its response and run:
@@ -37,7 +40,8 @@ If the verdict is `ITERATE`, implement the advice and continue:
 ```bash
 node "${CODEX_HOME:-$HOME/.codex}/skills/codex-chatgpt-web-review/scripts/continueWebReview.mjs" --compact --copy \
   --summary "what changed after the previous advice" \
-  --verification "node --test passed"
+  --verification "node --test passed" \
+  --focus "remaining risks"
 ```
 
 If ChatGPT Web gets stuck thinking or reloads to a blank conversation, refresh the page and resend the same prompt:
@@ -55,6 +59,8 @@ The scripts write review state under the current working directory:
 - `runs/<timestamp>/review.md`: raw ChatGPT reply
 - `runs/<timestamp>/review.json`: parsed verdict and advice
 - `runs/<timestamp>/failure.json`: failure details when a web attempt fails
+
+Parsed advice includes required changes, optional improvement ideas, risks, next actions, acceptance checks, and the delivery note. The structure is fixed for parsing; the advice content should be specific to the current task.
 
 ## Test
 

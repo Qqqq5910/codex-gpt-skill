@@ -34,6 +34,12 @@ async function main() {
       console.log(`- ${action}`);
     }
   }
+  if (parsed.changeRequests.length > 0) {
+    console.log("Change requests:");
+    for (const request of parsed.changeRequests) {
+      console.log(`- ${request}`);
+    }
+  }
 }
 
 function parseArgs(argv) {

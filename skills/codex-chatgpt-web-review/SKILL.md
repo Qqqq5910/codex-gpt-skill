@@ -7,6 +7,8 @@ description: Run an iterative Codex-to-ChatGPT Web review loop without using the
 
 Use this skill to route Codex work through ChatGPT Web as an external reviewer. It is designed for users who want to reuse their ChatGPT web login instead of using an API key.
 
+This skill should make ChatGPT produce concrete modification advice, not only a fixed approval phrase. Keep the structured sections so Codex can parse them, but make the content specific to the current task.
+
 ## Required Setup
 
 - Use the user's logged-in Chrome/ChatGPT session when available.
@@ -24,7 +26,10 @@ The bundled scripts are in this skill's `scripts/` directory. Run them from the 
 node /path/to/skill/scripts/prepareWebReview.mjs --compact --copy \
   --summary "what Codex changed" \
   --changed "file or behavior" \
-  --verification "test or manual check"
+  --verification "test or manual check" \
+  --focus "implementation quality" \
+  --focus "missing edge cases" \
+  --review-depth thorough
 ```
 
 2. Open ChatGPT Web in Chrome, paste the prompt, and send it.
@@ -44,7 +49,8 @@ node /path/to/skill/scripts/saveWebReview.mjs --from-clipboard
 node /path/to/skill/scripts/continueWebReview.mjs --compact --copy \
   --summary "what Codex changed after GPT advice" \
   --changed "file or behavior" \
-  --verification "test or manual check"
+  --verification "test or manual check" \
+  --focus "remaining risks"
 ```
 
 - If `verdict` is `BLOCKED`, resolve the blocker or ask the user for the needed input.
@@ -77,8 +83,16 @@ Ask ChatGPT to return this structure:
 
 ```text
 VERDICT: ITERATE | DELIVER | BLOCKED
+SUMMARY:
+- current result and uncertain evidence
 WHY:
 - one to three concrete reasons
+CHANGE_REQUESTS:
+- required modifications before delivery, or None
+IMPROVEMENT_IDEAS:
+- optional improvements for quality, UX, docs, tests, reliability, or maintainability
+RISKS:
+- concrete risks, edge cases, or missing evidence
 NEXT_ACTIONS:
 - concrete actions, or None if deliverable
 ACCEPTANCE_CHECKS:
@@ -87,11 +101,13 @@ DELIVERY_NOTE:
 - one short user-facing delivery sentence
 ```
 
-`saveWebReview.mjs` parses `verdict`, `why`, `nextActions`, `acceptanceChecks`, and `deliveryNote` into `runs/latest.json`.
+`saveWebReview.mjs` parses `verdict`, `summary`, `why`, `changeRequests`, `improvementIdeas`, `risks`, `nextActions`, `acceptanceChecks`, and `deliveryNote` into `runs/latest.json`.
 
 ## Operational Notes
 
 - Prefer `retryWebReview.mjs` after stuck thinking; prefer `continueWebReview.mjs` only after a saved `ITERATE` review.
+- Use `--focus` to steer GPT toward specific improvement areas instead of generic judgment.
+- Use `--review-depth thorough` when the user wants deeper modification advice.
 - `continueWebReview.mjs` stops after `DELIVER` unless `--force` is used.
 - `prepareWebReview.mjs --auto-mode` uses compact mode after a recorded full-mode failure.
 - Run `node --test` in this repository when modifying the bundled scripts.

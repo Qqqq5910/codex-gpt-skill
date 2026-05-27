@@ -7,11 +7,16 @@ test("buildReviewPrompt includes required sections", () => {
     artifactSummary: "Connected to ChatGPT web UI.",
     changedFiles: ["src/example.mjs"],
     verification: ["manual browser round trip"],
+    reviewFocus: ["implementation quality"],
+    reviewDepth: "thorough",
   });
 
   assert.match(prompt, /External Review Request/);
   assert.match(prompt, /Connected to ChatGPT web UI/);
   assert.match(prompt, /VERDICT: ITERATE \| DELIVER \| BLOCKED/);
+  assert.match(prompt, /CHANGE_REQUESTS/);
+  assert.match(prompt, /IMPROVEMENT_IDEAS/);
+  assert.match(prompt, /implementation quality/);
 });
 
 test("buildReviewPrompt supports compact web mode", () => {
@@ -22,15 +27,25 @@ test("buildReviewPrompt supports compact web mode", () => {
   });
 
   assert.match(prompt, /严格外部审查员/);
+  assert.match(prompt, /具体修改意见/);
   assert.match(prompt, /Round trip works/);
+  assert.match(prompt, /CHANGE_REQUESTS/);
   assert.match(prompt, /VERDICT: ITERATE \| DELIVER \| BLOCKED/);
 });
 
-test("parseReview extracts explicit verdict and actions", () => {
+test("parseReview extracts explicit verdict, requested changes, and ideas", () => {
   const parsed = parseReview(`
 VERDICT: ITERATE
+SUMMARY:
+- Web loop works but needs persistence.
 WHY:
 - Missing persistence.
+CHANGE_REQUESTS:
+- Save GPT review to disk.
+IMPROVEMENT_IDEAS:
+- Add a dashboard view later.
+RISKS:
+- Browser UI can change.
 NEXT_ACTIONS:
 - Save GPT review to disk.
 - Parse the verdict.
@@ -41,7 +56,11 @@ DELIVERY_NOTE:
 `);
 
   assert.equal(parsed.verdict, "ITERATE");
+  assert.deepEqual(parsed.summary, ["Web loop works but needs persistence."]);
   assert.deepEqual(parsed.why, ["Missing persistence."]);
+  assert.deepEqual(parsed.changeRequests, ["Save GPT review to disk."]);
+  assert.deepEqual(parsed.improvementIdeas, ["Add a dashboard view later."]);
+  assert.deepEqual(parsed.risks, ["Browser UI can change."]);
   assert.deepEqual(parsed.nextActions, ["Save GPT review to disk.", "Parse the verdict."]);
   assert.deepEqual(parsed.acceptanceChecks, ["node --test"]);
   assert.equal(parsed.deliveryNote, "Continue after persistence is working.");
@@ -87,6 +106,9 @@ test("parseReview handles explicit verdict with missing sections", () => {
 
   assert.equal(parsed.verdict, "ITERATE");
   assert.deepEqual(parsed.why, []);
+  assert.deepEqual(parsed.changeRequests, []);
+  assert.deepEqual(parsed.improvementIdeas, []);
+  assert.deepEqual(parsed.risks, []);
   assert.deepEqual(parsed.nextActions, []);
 });
 

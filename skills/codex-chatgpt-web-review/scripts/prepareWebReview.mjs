@@ -20,6 +20,8 @@ async function main() {
     changedFiles: args.changed,
     verification: args.verification,
     knownIssues: args.issue,
+    reviewFocus: args.focus,
+    reviewDepth: args.reviewDepth,
     priorAdvice: args.priorAdvice,
     compact: mode === "compact",
   });
@@ -36,6 +38,8 @@ async function main() {
         mode,
         iteration: Number(previous?.iteration || 0) + 1,
         promptChars: prompt.length,
+        reviewFocus: args.focus,
+        reviewDepth: args.reviewDepth || "thorough",
         previousStatus: previous?.status || null,
         status: "prompt_prepared",
         preparedAt: new Date().toISOString(),
@@ -61,6 +65,7 @@ function parseArgs(argv) {
     changed: [],
     verification: [],
     issue: [],
+    focus: [],
     copy: false,
   };
 
@@ -76,6 +81,8 @@ function parseArgs(argv) {
     else if (arg === "--changed") args.changed.push(next());
     else if (arg === "--verification") args.verification.push(next());
     else if (arg === "--issue") args.issue.push(next());
+    else if (arg === "--focus") args.focus.push(next());
+    else if (arg === "--review-depth") args.reviewDepth = next();
     else if (arg === "--prior-advice") args.priorAdvice = next();
     else if (arg === "--run-dir") args.runDir = next();
     else if (arg === "--help") {
@@ -100,6 +107,8 @@ Options:
   --changed TEXT        Relevant file or behavior, repeatable
   --verification TEXT   Check already run, repeatable
   --issue TEXT          Known issue or constraint, repeatable
+  --focus TEXT          Review focus such as tests, UX, security, docs, repeatable
+  --review-depth TEXT   Review depth: fast, normal, thorough, or custom
   --prior-advice TEXT   Previous GPT advice
   --run-dir PATH        Output directory
   --copy                Copy prompt to macOS clipboard

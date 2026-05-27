@@ -20,10 +20,18 @@ export function buildSavedReviewUpdate(latest, parsed, { reviewPath, parsedPath,
     parsedPath,
     status: "review_saved",
     verdict: parsed.verdict,
-    why: parsed.why,
-    nextActions: parsed.nextActions,
-    acceptanceChecks: parsed.acceptanceChecks,
+    summary: list(parsed.summary),
+    why: list(parsed.why),
+    changeRequests: list(parsed.changeRequests),
+    improvementIdeas: list(parsed.improvementIdeas),
+    risks: list(parsed.risks),
+    nextActions: list(parsed.nextActions),
+    acceptanceChecks: list(parsed.acceptanceChecks),
     deliveryNote: parsed.deliveryNote,
     savedAt,
   };
+}
+
+function list(value) {
+  return Array.isArray(value) ? value : [];
 }
